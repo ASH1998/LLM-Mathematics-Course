@@ -1,0 +1,1329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LLM Mathematics Course Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #2c3e50, #34495e);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 300;
+        }
+        
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+        
+        .progress-overview {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            padding: 30px;
+            background: #f8f9fa;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            transition: transform 0.3s ease;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+        
+        .stat-label {
+            font-size: 0.9rem;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .main-content {
+            padding: 30px;
+        }
+        
+        .tabs {
+            display: flex;
+            background: #f1f3f4;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            overflow: hidden;
+        }
+        
+        .tab {
+            flex: 1;
+            padding: 15px 20px;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            color: #666;
+        }
+        
+        .tab.active {
+            background: #667eea;
+            color: white;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .module-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 25px;
+        }
+        
+        .module-card {
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 15px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .module-card:hover {
+            border-color: #667eea;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+        
+        .module-header {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 20px;
+            position: relative;
+        }
+        
+        .module-number {
+            font-size: 0.9rem;
+            opacity: 0.8;
+            margin-bottom: 5px;
+        }
+        
+        .module-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        
+        .module-progress {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .progress-bar {
+            flex: 1;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: white;
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+        
+        .progress-text {
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+        
+        .module-body {
+            padding: 20px;
+        }
+        
+        .topics-list {
+            margin-bottom: 20px;
+        }
+        
+        .topic-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .topic-item:last-child {
+            border-bottom: none;
+        }
+        
+        .topic-checkbox {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+        
+        .topic-text {
+            flex: 1;
+            font-size: 0.9rem;
+            color: #555;
+        }
+        
+        .topic-text.completed {
+            text-decoration: line-through;
+            color: #999;
+        }
+        
+        .deliverables {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 15px;
+        }
+        
+        .deliverables-title {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+        
+        .deliverable-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 5px 0;
+        }
+        
+        .date-input {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            width: 140px;
+        }
+        
+        .assessment-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        
+        .assessment-card {
+            background: white;
+            border: 1px solid #e9ecef;
+            border-radius: 12px;
+            padding: 25px;
+            transition: all 0.3s ease;
+        }
+        
+        .assessment-card:hover {
+            border-color: #667eea;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        .assessment-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+        
+        .assessment-weight {
+            font-size: 0.9rem;
+            color: #667eea;
+            font-weight: 500;
+            margin-bottom: 15px;
+        }
+        
+        .assessment-description {
+            font-size: 0.9rem;
+            color: #666;
+            line-height: 1.5;
+            margin-bottom: 20px;
+        }
+        
+        .completion-slider {
+            width: 100%;
+            margin-top: 15px;
+        }
+        
+        .slider-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 8px;
+        }
+        
+        .resources-list {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid #e9ecef;
+        }
+        
+        .resource-item {
+            display: flex;
+            align-items: center;
+            padding: 20px;
+            border-bottom: 1px solid #f0f0f0;
+            transition: background 0.3s ease;
+        }
+        
+        .resource-item:hover {
+            background: #f8f9fa;
+        }
+        
+        .resource-item:last-child {
+            border-bottom: none;
+        }
+        
+        .resource-type {
+            background: #667eea;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            min-width: 80px;
+            text-align: center;
+            margin-right: 20px;
+        }
+        
+        .resource-content {
+            flex: 1;
+        }
+        
+        .resource-title {
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+        
+        .resource-description {
+            font-size: 0.9rem;
+            color: #666;
+            line-height: 1.4;
+        }
+        
+        .save-button {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 15px 25px;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+            transition: all 0.3s ease;
+        }
+        
+        .save-button:hover {
+            background: #5a67d8;
+            transform: translateY(-2px);
+            box-shadow: 0 15px 35px rgba(102, 126, 234, 0.4);
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+                border-radius: 15px;
+            }
+            
+            .header {
+                padding: 20px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .module-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .tabs {
+                flex-direction: column;
+            }
+            
+            .progress-overview {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 15px;
+                padding: 20px;
+            }
+            
+            .save-button {
+                padding: 12px 20px;
+                font-size: 0.9rem;
+            }
+        }
+        
+        /* Additional media query for very small screens */
+        @media (max-width: 480px) {
+            .save-button {
+                padding: 10px 15px;
+                font-size: 0.8rem;
+                border-radius: 25px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>LLM Mathematics Course</h1>
+            <p>Comprehensive Mathematical Foundation for Large Language Models</p>
+            <div style="margin-top: 15px; font-size: 0.9rem; opacity: 0.8;">
+                <div style="margin-bottom: 8px;">© 2025 Ashutosh Mishra. All rights reserved.</div>
+                <div style="display: flex; justify-content: center; gap: 20px; flex-wrap: wrap;">
+                    <a href="https://ashutosh.mishra.dev" target="_blank" style="color: white; text-decoration: none; display: flex; align-items: center; gap: 5px; transition: opacity 0.3s ease;" onmouseover="this.style.opacity='0.8'" onmouseout="this.style.opacity='1'">
+                        🌐 Website
+                    </a>
+                    <a href="https://github.com/ASH1998" target="_blank" style="color: white; text-decoration: none; display: flex; align-items: center; gap: 5px; transition: opacity 0.3s ease;" onmouseover="this.style.opacity='0.8'" onmouseout="this.style.opacity='1'">
+                        📱 GitHub
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="progress-overview">
+            <div class="stat-card">
+                <div class="stat-number" id="overall-progress">0%</div>
+                <div class="stat-label">Overall Progress</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="completed-modules">0/14</div>
+                <div class="stat-label">Modules Completed</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="completed-assessments">0/4</div>
+                <div class="stat-label">Assessments Done</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="days-remaining">--</div>
+                <div class="stat-label">Days Remaining</div>
+            </div>
+        </div>
+        
+        <div class="main-content">
+            <div class="tabs">
+                <button class="tab active" onclick="showTab('modules')">Modules</button>
+                <button class="tab" onclick="showTab('assessments')">Assessments</button>
+                <button class="tab" onclick="showTab('resources')">Resources</button>
+                <button class="tab" onclick="showTab('schedule')">Schedule</button>
+            </div>
+            
+            <div id="modules" class="tab-content active">
+                <div class="module-grid" id="modules-grid">
+                    <!-- Modules will be populated by JavaScript -->
+                </div>
+            </div>
+            
+            <div id="assessments" class="tab-content">
+                <div class="assessment-grid" id="assessments-grid">
+                    <!-- Assessments will be populated by JavaScript -->
+                </div>
+            </div>
+            
+            <div id="resources" class="tab-content">
+                <div class="resources-list" id="resources-list">
+                    <!-- Resources will be populated by JavaScript -->
+                </div>
+            </div>
+            
+            <div id="schedule" class="tab-content">
+                <div style="background: white; padding: 25px; border-radius: 12px; border: 1px solid #e9ecef;">
+                    <h3 style="margin-bottom: 20px; color: #2c3e50;">Study Schedule Configuration</h3>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
+                        <div>
+                            <label style="display: block; margin-bottom: 8px; font-weight: 500;">Course Start Date:</label>
+                            <input type="date" id="start-date" class="date-input" style="width: 100%;" onchange="updateSchedule()">
+                        </div>
+                        <div>
+                            <label style="display: block; margin-bottom: 8px; font-weight: 500;">Target End Date:</label>
+                            <input type="date" id="end-date" class="date-input" style="width: 100%;" onchange="updateSchedule()">
+                        </div>
+                        <div>
+                            <label style="display: block; margin-bottom: 8px; font-weight: 500;">Weekly Study Hours:</label>
+                            <input type="number" id="weekly-hours" class="date-input" style="width: 100%;" value="10" min="1" max="40" onchange="updateSchedule()">
+                        </div>
+                    </div>
+                    <div id="schedule-output" style="margin-top: 20px; padding: 15px; background: #f8f9fa; border-radius: 8px; display: none;">
+                        <!-- Schedule details will appear here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <button class="save-button" onclick="saveProgress()">💾 Save Progress</button>
+    </div>
+
+    <script>
+        // Course data - Updated to 20 modules with coding deliverables
+        const modules = [
+            {
+                id: 1,
+                title: "Linear Algebra",
+                topics: ["vector spaces", "norms", "SVD", "tensor contractions"],
+                deliverables: ["batched SVD notebook", "einsum attention prototype"],
+                codingDeliverables: ["batched_svd.py", "einsum_attention.ipynb"],
+                reading: "Axler, Linear Algebra Done Right, chapters 1-6"
+            },
+            {
+                id: 2,
+                title: "Multivariate Calculus and Autodiff",
+                topics: ["Jacobians", "Hessians", "reverse-mode autodiff", "chain rule"],
+                deliverables: ["build micrograd clone", "gradient check transformer layer"],
+                codingDeliverables: ["100-line autodiff engine", "transformer gradient check"],
+                reading: "Chain rule in matrix form, forward vs reverse mode"
+            },
+            {
+                id: 3,
+                title: "Probability and Information Theory",
+                topics: ["KL divergence", "entropy", "cross-entropy", "likelihood"],
+                deliverables: ["perplexity calculator", "masked softmax sampler"],
+                codingDeliverables: ["perplexity.py", "temperature_sampler.py"],
+                reading: "Cross-entropy from likelihood derivation"
+            },
+            {
+                id: 4,
+                title: "Optimization Theory",
+                topics: ["SGD", "Adam", "Lion", "convexity", "Polyak-Lojasiewicz"],
+                deliverables: ["optimizer benchmark suite on quadratic and CIFAR-tiny"],
+                codingDeliverables: ["optimizer comparison plots", "convergence analysis"],
+                reading: "SGD vs Adam vs Lion, Polyak-Lojasiewicz condition"
+            },
+            {
+                id: 5,
+                title: "Fundamental Learning Theory",
+                topics: ["PAC bounds", "VC dimension", "double descent", "bias-variance"],
+                deliverables: ["VC calculator script", "bias-variance simulation"],
+                codingDeliverables: ["vc_dimension.ipynb", "bias-variance visualizer"],
+                reading: "PAC bound, VC dimension, bias-variance, double descent"
+            },
+            {
+                id: 6,
+                title: "Discrete Math and Graphs",
+                topics: ["suffix tries", "DAGs", "attention sparsity graphs", "prefix trees"],
+                deliverables: ["build suffix tree tokenization visualizer"],
+                codingDeliverables: ["suffix tree visualizer", "graphviz export"],
+                reading: "Prefix trees, DAG compression, sparse attention graphs"
+            },
+            {
+                id: 7,
+                title: "Sequence Models Before Transformers",
+                topics: ["n-gram", "RNN", "LSTM", "vanishing gradients", "GRU"],
+                deliverables: ["trigram LM in PyTorch", "gradient norm tracker"],
+                codingDeliverables: ["trigram LM implementation", "GRU hidden state norms"],
+                reading: "Vanishing/exploding gradients, GRU equations"
+            },
+            {
+                id: 8,
+                title: "Attention Mechanics",
+                topics: ["scaled dot-product", "temperature", "masking", "complexity O(n²d)"],
+                deliverables: ["single-head attention from scratch", "entropy explorer"],
+                codingDeliverables: ["attention_entropy.py", "temperature entropy plots"],
+                reading: "Complexity O(n^2 d), temperature effect on entropy"
+            },
+            {
+                id: 9,
+                title: "Transformer Layer Math",
+                topics: ["positional encodings", "residuals", "layer norm", "gradient flow"],
+                deliverables: ["two-layer transformer training on Tiny Shakespeare"],
+                codingDeliverables: ["custom positional encodings", "gradient flow visualization"],
+                reading: "Sinusoidal and rotary encodings, residual path analysis"
+            },
+            {
+                id: 10,
+                title: "Tokenization and Embeddings",
+                topics: ["BPE", "unigram", "cosine similarity", "isotropy"],
+                deliverables: ["tokenizer trainer CLI", "embedding isotropy histogram"],
+                codingDeliverables: ["BPE and unigram trainer", "cosine similarity histogram"],
+                reading: "BPE merge heuristics, isotropy"
+            },
+            {
+                id: 11,
+                title: "Scaling Laws",
+                topics: ["compute vs params", "gradient noise scale", "power-law fitting"],
+                deliverables: ["reproduce Kaplan plots", "fit scaling exponents"],
+                codingDeliverables: ["Kaplan et al. reproduction", "alpha beta gamma estimation"],
+                reading: "Fit power-law loss surfaces"
+            },
+            {
+                id: 12,
+                title: "Large-Batch and Mixed Precision",
+                topics: ["ZeRO-3", "BF16", "activation checkpointing", "memory optimization"],
+                deliverables: ["train 70M parameter LM with ZeRO-3 on single GPU"],
+                codingDeliverables: ["bf16 ZeRO-3 training", "throughput logging"],
+                reading: "ZeRO-3, BF16, activation checkpointing"
+            },
+            {
+                id: 13,
+                title: "RL From Human Feedback",
+                topics: ["policy gradients", "PPO", "KL penalty", "reward models"],
+                deliverables: ["PPO fine-tune toy chatbot", "KL tracker dashboard"],
+                codingDeliverables: ["PPO chatbot training", "KL divergence plots"],
+                reading: "KL-regularized PPO, reward models"
+            },
+            {
+                id: 14,
+                title: "Evaluation and Safety Math",
+                topics: ["perplexity", "MMLU", "differential privacy epsilon", "accuracy trade-offs"],
+                deliverables: ["eval harness runner", "DP noise budget estimator"],
+                codingDeliverables: ["MMLU eval harness", "DP epsilon calculator"],
+                reading: "Perplexity vs accuracy, differential privacy"
+            },
+            {
+                id: 15,
+                title: "Advanced Representation Theory",
+                topics: ["NTK", "lottery tickets", "random matrix spectrum", "pruning"],
+                deliverables: ["NTK spectrum plot", "lottery ticket pruning experiment"],
+                codingDeliverables: ["NTK spectrum analysis", "20% sparsity pruning"],
+                reading: "Neural tangent kernel, random matrix spectrum"
+            },
+            {
+                id: 16,
+                title: "Retrieval Augmentation and Vector Search",
+                topics: ["FAISS", "HNSW", "negative sampling", "recall metrics"],
+                deliverables: ["build RAG pipeline", "recall vs latency plot"],
+                codingDeliverables: ["RAG with 100k Wikipedia", "recall@5 benchmark"],
+                reading: "FAISS and HNSW, negative sampling"
+            },
+            {
+                id: 17,
+                title: "LLM Engineering Pipeline",
+                topics: ["data ingestion", "sharding", "distributed training", "logging"],
+                deliverables: ["end-to-end pretraining script", "Weights and Biases logging"],
+                codingDeliverables: ["Common Crawl streaming", "W&B metrics integration"],
+                reading: "Ingestion, sharding, distributed data parallel"
+            },
+            {
+                id: 18,
+                title: "Inference Optimization and Quantization",
+                topics: ["INT8", "GPTQ", "speculative decoding", "latency optimization"],
+                deliverables: ["Triton or vLLM server with spec-decoding benchmark"],
+                codingDeliverables: ["quantized model deployment", "speculative decoding wrapper"],
+                reading: "GPTQ, INT8, speculative decoding"
+            },
+            {
+                id: 19,
+                title: "Monitoring, Logging and Observability",
+                topics: ["perplexity drift", "latency SLOs", "metrics collection", "alerting"],
+                deliverables: ["Prometheus + Grafana dashboard for live model"],
+                codingDeliverables: ["Prometheus exporter", "Grafana dashboard"],
+                reading: "Perplexity drift, latency SLO violations"
+            },
+            {
+                id: 20,
+                title: "Responsible AI and Governance",
+                topics: ["bias metrics", "eval cards", "licensing", "toxicity detection"],
+                deliverables: ["create model card", "implement bias evaluation notebook"],
+                codingDeliverables: ["model card generator", "StereoSet bias detector"],
+                reading: "Bias metrics, model cards, licenses"
+            }
+        ];
+
+        const assessments = [
+            {
+                title: "Weekly Proof Quizzes",
+                weight: "10%",
+                description: "LaTeX write-ups of key theorems",
+                type: "ongoing"
+            },
+            {
+                title: "Hands-on Coding Labs",
+                weight: "40%",
+                description: "Modules 01-20 deliverables, auto-graded",
+                type: "practical"
+            },
+            {
+                title: "Paper Replication Project",
+                weight: "20%",
+                description: "Recreate a figure from a landmark paper",
+                type: "research"
+            },
+            {
+                title: "Engineering Capstone",
+                weight: "30%",
+                description: "Train and deploy a compute-optimal LM with RAG and monitoring",
+                type: "capstone"
+            }
+        ];
+
+        const resources = [
+            {
+                type: "Textbook",
+                title: "Deep Learning by Goodfellow, Bengio, Courville",
+                description: "Rigorous math of back-propagation and optimization"
+            },
+            {
+                type: "Textbook",
+                title: "Understanding Machine Learning by Shalev-Shwartz & Ben-David",
+                description: "PAC learning theory and statistical learning foundations"
+            },
+            {
+                type: "Paper",
+                title: "Attention Is All You Need (Vaswani et al., 2017)",
+                description: "Foundation of transformer math"
+            },
+            {
+                type: "Paper",
+                title: "Scaling Laws for Neural Language Models (Kaplan et al., 2020)",
+                description: "Empirical loss scaling relations"
+            },
+            {
+                type: "Paper",
+                title: "DeepMind Chinchilla compute-optimal scaling",
+                description: "Modern data-vs-parameters trade-off"
+            },
+            {
+                type: "Course",
+                title: "Hugging Face Course - Training Transformers at Scale",
+                description: "Practical distributed training and engineering"
+            },
+            {
+                type: "Guide",
+                title: "OpenAI Spinning-Up PPO Guide",
+                description: "Clear derivation of PPO for RLHF"
+            },
+            {
+                type: "Docs",
+                title: "FAISS, vLLM, Triton official documentation",
+                description: "Vector search, inference optimization, and GPU kernels"
+            }
+        ];
+
+        // Initialize the dashboard
+        function initializeDashboard() {
+            loadProgress();
+            renderModules();
+            renderAssessments();
+            renderResources();
+            updateOverallStats();
+        }
+
+        function renderModules() {
+            const grid = document.getElementById('modules-grid');
+            grid.innerHTML = '';
+            
+            modules.forEach(module => {
+                const progress = getModuleProgress(module.id);
+                const card = document.createElement('div');
+                card.className = 'module-card';
+                card.innerHTML = `
+                    <div class="module-header">
+                        <div class="module-number">Module ${module.id.toString().padStart(2, '0')}</div>
+                        <div class="module-title">${module.title}</div>
+                        <div class="module-progress">
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: ${progress}%"></div>
+                            </div>
+                            <div class="progress-text">${progress}%</div>
+                        </div>
+                    </div>
+                    <div class="module-body">
+                        <div class="topics-list">
+                            ${module.topics.map((topic, index) => `
+                                <div class="topic-item">
+                                    <input type="checkbox" class="topic-checkbox" 
+                                           onchange="updateTopicProgress(${module.id}, ${index})"
+                                           ${isTopicCompleted(module.id, index) ? 'checked' : ''}>
+                                    <span class="topic-text ${isTopicCompleted(module.id, index) ? 'completed' : ''}">${topic}</span>
+                                </div>
+                            `).join('')}
+                        </div>
+                        ${module.codingDeliverables ? `
+                        <div class="deliverables" style="background: #e8f5e8; border-left: 4px solid #28a745;">
+                            <div class="deliverables-title">💻 Coding Deliverables</div>
+                            ${module.codingDeliverables.map((coding, index) => `
+                                <div class="deliverable-item">
+                                    <input type="checkbox" class="topic-checkbox"
+                                           onchange="updateCodingDeliverableProgress(${module.id}, ${index})"
+                                           ${isCodingDeliverableCompleted(module.id, index) ? 'checked' : ''}>
+                                    <span class="topic-text ${isCodingDeliverableCompleted(module.id, index) ? 'completed' : ''}">${coding}</span>
+                                    <input type="date" class="date-input" 
+                                           value="${getCodingDeliverableDate(module.id, index)}"
+                                           onchange="updateCodingDeliverableDate(${module.id}, ${index}, this.value)">
+                                </div>
+                            `).join('')}
+                        </div>
+                        ` : ''}
+                        <div class="deliverables">
+                            <div class="deliverables-title">📋 Deliverables</div>
+                            ${module.deliverables.map((deliverable, index) => `
+                                <div class="deliverable-item">
+                                    <input type="checkbox" class="topic-checkbox"
+                                           onchange="updateDeliverableProgress(${module.id}, ${index})"
+                                           ${isDeliverableCompleted(module.id, index) ? 'checked' : ''}>
+                                    <span class="topic-text ${isDeliverableCompleted(module.id, index) ? 'completed' : ''}">${deliverable}</span>
+                                    <input type="date" class="date-input" 
+                                           value="${getDeliverableDate(module.id, index)}"
+                                           onchange="updateDeliverableDate(${module.id}, ${index}, this.value)">
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function renderAssessments() {
+            const grid = document.getElementById('assessments-grid');
+            grid.innerHTML = '';
+            
+            assessments.forEach((assessment, index) => {
+                const completion = getAssessmentCompletion(index);
+                const card = document.createElement('div');
+                card.className = 'assessment-card';
+                card.innerHTML = `
+                    <div class="assessment-title">${assessment.title}</div>
+                    <div class="assessment-weight">Weight: ${assessment.weight}</div>
+                    <div class="assessment-description">${assessment.description}</div>
+                    <div class="slider-label">
+                        <span>Completion</span>
+                        <span>${completion}%</span>
+                    </div>
+                    <input type="range" class="completion-slider" min="0" max="100" value="${completion}"
+                           onchange="updateAssessmentCompletion(${index}, this.value)">
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function renderResources() {
+            const list = document.getElementById('resources-list');
+            list.innerHTML = '';
+            
+            resources.forEach(resource => {
+                const item = document.createElement('div');
+                item.className = 'resource-item';
+                item.innerHTML = `
+                    <div class="resource-type">${resource.type}</div>
+                    <div class="resource-content">
+                        <div class="resource-title">${resource.title}</div>
+                        <div class="resource-description">${resource.description}</div>
+                    </div>
+                `;
+                list.appendChild(item);
+            });
+        }
+
+        function showTab(tabName) {
+            // Hide all tab contents
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            // Remove active class from all tabs
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Show selected tab content and mark tab as active
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        // Progress tracking functions
+        function getProgress() {
+            const saved = localStorage.getItem('llm-course-progress');
+            if (saved) {
+                return JSON.parse(saved);
+            }
+            return {
+                modules: {},
+                assessments: Array(assessments.length).fill(0),
+                startDate: '',
+                endDate: '',
+                weeklyHours: 10
+            };
+        }
+
+        function saveProgress() {
+            const progress = getProgress();
+            localStorage.setItem('llm-course-progress', JSON.stringify(progress));
+            
+            // Visual feedback
+            const button = document.querySelector('.save-button');
+            const originalText = button.innerHTML;
+            button.innerHTML = '✅ Saved!';
+            button.style.background = '#28a745';
+            setTimeout(() => {
+                button.innerHTML = originalText;
+                button.style.background = '#667eea';
+            }, 2000);
+        }
+
+        function loadProgress() {
+            const progress = getProgress();
+            
+            // Load schedule settings
+            if (progress.startDate) document.getElementById('start-date').value = progress.startDate;
+            if (progress.endDate) document.getElementById('end-date').value = progress.endDate;
+            if (progress.weeklyHours) document.getElementById('weekly-hours').value = progress.weeklyHours;
+            
+            updateSchedule();
+        }
+
+        function getModuleProgress(moduleId) {
+            const progress = getProgress();
+            const moduleData = progress.modules[moduleId] || { topics: [], deliverables: [] };
+                            const totalItems = modules[moduleId - 1].topics.length + 
+                                   modules[moduleId - 1].deliverables.length +
+                                   (modules[moduleId - 1].codingDeliverables?.length || 0);
+                            const completedItems = (moduleData.topics.filter(Boolean).length + 
+                                        moduleData.deliverables.filter(d => d.completed).length +
+                                        (moduleData.codingDeliverables?.filter(d => d.completed).length || 0));
+            return Math.round((completedItems / totalItems) * 100);
+        }
+
+        function isTopicCompleted(moduleId, topicIndex) {
+            const progress = getProgress();
+            return progress.modules[moduleId]?.topics[topicIndex] || false;
+        }
+
+        function isDeliverableCompleted(moduleId, deliverableIndex) {
+            const progress = getProgress();
+            return progress.modules[moduleId]?.deliverables[deliverableIndex]?.completed || false;
+        }
+
+        function getDeliverableDate(moduleId, deliverableIndex) {
+            const progress = getProgress();
+            return progress.modules[moduleId]?.deliverables[deliverableIndex]?.date || '';
+        }
+
+        function updateTopicProgress(moduleId, topicIndex) {
+            const progress = getProgress();
+            if (!progress.modules[moduleId]) {
+                progress.modules[moduleId] = { topics: [], deliverables: [], codingDeliverables: [] };
+            }
+            progress.modules[moduleId].topics[topicIndex] = event.target.checked;
+            localStorage.setItem('llm-course-progress', JSON.stringify(progress));
+            
+            // Update UI
+            const topicText = event.target.nextElementSibling;
+            topicText.classList.toggle('completed', event.target.checked);
+            
+            updateModuleProgressBar(moduleId);
+            updateOverallStats();
+        }
+
+        function updateDeliverableProgress(moduleId, deliverableIndex) {
+            const progress = getProgress();
+            if (!progress.modules[moduleId]) {
+                progress.modules[moduleId] = { topics: [], deliverables: [], codingDeliverables: [] };
+            }
+            if (!progress.modules[moduleId].deliverables[deliverableIndex]) {
+                progress.modules[moduleId].deliverables[deliverableIndex] = { completed: false, date: '' };
+            }
+            progress.modules[moduleId].deliverables[deliverableIndex].completed = event.target.checked;
+            localStorage.setItem('llm-course-progress', JSON.stringify(progress));
+            
+            // Update UI
+            const deliverableText = event.target.nextElementSibling;
+            deliverableText.classList.toggle('completed', event.target.checked);
+            
+            updateModuleProgressBar(moduleId);
+            updateOverallStats();
+        }
+
+        function isCodingDeliverableCompleted(moduleId, codingIndex) {
+            const progress = getProgress();
+            return progress.modules[moduleId]?.codingDeliverables[codingIndex]?.completed || false;
+        }
+
+        function getCodingDeliverableDate(moduleId, codingIndex) {
+            const progress = getProgress();
+            return progress.modules[moduleId]?.codingDeliverables[codingIndex]?.date || '';
+        }
+
+        function updateCodingDeliverableProgress(moduleId, codingIndex) {
+            const progress = getProgress();
+            if (!progress.modules[moduleId]) {
+                progress.modules[moduleId] = { topics: [], deliverables: [], codingDeliverables: [] };
+            }
+            if (!progress.modules[moduleId].codingDeliverables[codingIndex]) {
+                progress.modules[moduleId].codingDeliverables[codingIndex] = { completed: false, date: '' };
+            }
+            progress.modules[moduleId].codingDeliverables[codingIndex].completed = event.target.checked;
+            localStorage.setItem('llm-course-progress', JSON.stringify(progress));
+            
+            // Update UI
+            const codingText = event.target.nextElementSibling;
+            codingText.classList.toggle('completed', event.target.checked);
+            
+            updateModuleProgressBar(moduleId);
+            updateOverallStats();
+        }
+
+        function updateCodingDeliverableDate(moduleId, codingIndex, date) {
+            const progress = getProgress();
+            if (!progress.modules[moduleId]) {
+                progress.modules[moduleId] = { topics: [], deliverables: [], codingDeliverables: [] };
+            }
+            if (!progress.modules[moduleId].codingDeliverables[codingIndex]) {
+                progress.modules[moduleId].codingDeliverables[codingIndex] = { completed: false, date: '' };
+            }
+            progress.modules[moduleId].codingDeliverables[codingIndex].date = date;
+            localStorage.setItem('llm-course-progress', JSON.stringify(progress));
+        }
+
+        function updateModuleProgressBar(moduleId) {
+            const newProgress = getModuleProgress(moduleId);
+            const progressBar = document.querySelector(`[data-module="${moduleId}"] .progress-fill`);
+            const progressText = document.querySelector(`[data-module="${moduleId}"] .progress-text`);
+            
+            if (progressBar) {
+                progressBar.style.width = `${newProgress}%`;
+            }
+            if (progressText) {
+                progressText.textContent = `${newProgress}%`;
+            }
+        }
+
+        function getAssessmentCompletion(assessmentIndex) {
+            const progress = getProgress();
+            return progress.assessments[assessmentIndex] || 0;
+        }
+
+        function updateAssessmentCompletion(assessmentIndex, value) {
+            const progress = getProgress();
+            progress.assessments[assessmentIndex] = parseInt(value);
+            localStorage.setItem('llm-course-progress', JSON.stringify(progress));
+            
+            // Update slider label
+            const slider = event.target;
+            const label = slider.previousElementSibling.querySelector('span:last-child');
+            label.textContent = `${value}%`;
+            
+            updateOverallStats();
+        }
+
+        function updateOverallStats() {
+            // Calculate overall progress
+            let totalProgress = 0;
+            let completedModules = 0;
+            
+            modules.forEach(module => {
+                const moduleProgress = getModuleProgress(module.id);
+                totalProgress += moduleProgress;
+                if (moduleProgress === 100) completedModules++;
+            });
+            
+            const overallProgress = Math.round(totalProgress / modules.length);
+            
+            // Calculate completed assessments
+            const progress = getProgress();
+            const completedAssessments = progress.assessments.filter(completion => completion === 100).length;
+            
+            // Calculate days remaining
+            let daysRemaining = '--';
+            if (progress.endDate) {
+                const endDate = new Date(progress.endDate);
+                const today = new Date();
+                const diffTime = endDate - today;
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                daysRemaining = diffDays > 0 ? diffDays : 'Overdue';
+            }
+            
+            // Update UI
+            document.getElementById('overall-progress').textContent = `${overallProgress}%`;
+            document.getElementById('completed-modules').textContent = `${completedModules}/14`;
+            document.getElementById('completed-assessments').textContent = `${completedAssessments}/4`;
+            document.getElementById('days-remaining').textContent = daysRemaining;
+        }
+
+        function updateSchedule() {
+            const startDate = document.getElementById('start-date').value;
+            const endDate = document.getElementById('end-date').value;
+            const weeklyHours = document.getElementById('weekly-hours').value;
+            
+            // Save to progress
+            const progress = getProgress();
+            progress.startDate = startDate;
+            progress.endDate = endDate;
+            progress.weeklyHours = parseInt(weeklyHours);
+            localStorage.setItem('llm-course-progress', JSON.stringify(progress));
+            
+            if (startDate && endDate) {
+                const start = new Date(startDate);
+                const end = new Date(endDate);
+                const totalDays = Math.ceil((end - start) / (1000 * 60 * 60 * 24));
+                const totalWeeks = Math.ceil(totalDays / 7);
+                const totalHours = totalWeeks * weeklyHours;
+                const hoursPerModule = Math.round(totalHours / 20); // Updated to 20 modules
+                
+                const scheduleOutput = document.getElementById('schedule-output');
+                scheduleOutput.style.display = 'block';
+                scheduleOutput.innerHTML = `
+                    <h4 style="margin-bottom: 15px; color: #2c3e50;">📅 Schedule Overview</h4>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                        <div>
+                            <strong>Total Duration:</strong><br>
+                            ${totalDays} days (${totalWeeks} weeks)
+                        </div>
+                        <div>
+                            <strong>Total Study Time:</strong><br>
+                            ${totalHours} hours
+                        </div>
+                        <div>
+                            <strong>Hours per Module:</strong><br>
+                            ~${hoursPerModule} hours
+                        </div>
+                        <div>
+                            <strong>Weekly Commitment:</strong><br>
+                            ${weeklyHours} hours/week
+                        </div>
+                    </div>
+                    <div style="margin-top: 20px; padding: 15px; background: white; border-radius: 8px; border-left: 4px solid #667eea;">
+                        <strong>💡 Recommendation:</strong> With ${hoursPerModule} hours per module, you should spend approximately 
+                        ${Math.round(hoursPerModule * 0.4)} hours on reading/theory, ${Math.round(hoursPerModule * 0.4)} hours on coding exercises, 
+                        and ${Math.round(hoursPerModule * 0.2)} hours on assessments for each module.
+                    </div>
+                `;
+            }
+            
+            updateOverallStats();
+        }
+
+        // Export functionality
+        function exportProgress() {
+            const progress = getProgress();
+            const dataStr = JSON.stringify(progress, null, 2);
+            const dataBlob = new Blob([dataStr], {type: 'application/json'});
+            
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(dataBlob);
+            link.download = 'llm_course_progress.json';
+            link.click();
+        }
+
+        function importProgress() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.json';
+            input.onchange = function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        try {
+                            const progress = JSON.parse(e.target.result);
+                            localStorage.setItem('llm-course-progress', JSON.stringify(progress));
+                            location.reload(); // Refresh to show imported data
+                        } catch (error) {
+                            alert('Error importing file: Invalid JSON format');
+                        }
+                    };
+                    reader.readAsText(file);
+                }
+            };
+            input.click();
+        }
+
+        // Add keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            if (e.ctrlKey || e.metaKey) {
+                if (e.key === 's') {
+                    e.preventDefault();
+                    saveProgress();
+                }
+                if (e.key === 'e') {
+                    e.preventDefault();
+                    exportProgress();
+                }
+                if (e.key === 'i') {
+                    e.preventDefault();
+                    importProgress();
+                }
+            }
+        });
+
+        // Auto-save functionality
+        setInterval(saveProgress, 30000); // Auto-save every 30 seconds
+
+        // Initialize dashboard when page loads
+        document.addEventListener('DOMContentLoaded', initializeDashboard);
+
+        // Add module data attributes for easier targeting
+        function renderModules() {
+            const grid = document.getElementById('modules-grid');
+            grid.innerHTML = '';
+            
+            modules.forEach(module => {
+                const progress = getModuleProgress(module.id);
+                const card = document.createElement('div');
+                card.className = 'module-card';
+                card.setAttribute('data-module', module.id);
+                card.innerHTML = `
+                    <div class="module-header">
+                        <div class="module-number">Module ${module.id.toString().padStart(2, '0')}</div>
+                        <div class="module-title">${module.title}</div>
+                        <div class="module-progress">
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: ${progress}%"></div>
+                            </div>
+                            <div class="progress-text">${progress}%</div>
+                        </div>
+                    </div>
+                    <div class="module-body">
+                        <div class="topics-list">
+                            ${module.topics.map((topic, index) => `
+                                <div class="topic-item">
+                                    <input type="checkbox" class="topic-checkbox" 
+                                           onchange="updateTopicProgress(${module.id}, ${index})"
+                                           ${isTopicCompleted(module.id, index) ? 'checked' : ''}>
+                                    <span class="topic-text ${isTopicCompleted(module.id, index) ? 'completed' : ''}">${topic}</span>
+                                </div>
+                            `).join('')}
+                        </div>
+                        <div class="deliverables">
+                            <div class="deliverables-title">📋 Deliverables</div>
+                            ${module.deliverables.map((deliverable, index) => `
+                                <div class="deliverable-item">
+                                    <input type="checkbox" class="topic-checkbox"
+                                           onchange="updateDeliverableProgress(${module.id}, ${index})"
+                                           ${isDeliverableCompleted(module.id, index) ? 'checked' : ''}>
+                                    <span class="topic-text ${isDeliverableCompleted(module.id, index) ? 'completed' : ''}">${deliverable}</span>
+                                    <input type="date" class="date-input" 
+                                           value="${getDeliverableDate(module.id, index)}"
+                                           onchange="updateDeliverableDate(${module.id}, ${index}, this.value)">
+                                </div>
+                            `).join('')}
+                        </div>
+                        <div style="margin-top: 15px; font-size: 0.85rem; color: #666; font-style: italic;">
+                            📚 ${module.reading}
+                        </div>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        // Add export/import buttons to the save button area
+        function addExportImportButtons() {
+            const saveButton = document.querySelector('.save-button');
+            
+            // Create export button
+            const exportButton = document.createElement('button');
+            exportButton.innerHTML = '📤 Export';
+            exportButton.className = 'save-button';
+            exportButton.style.background = '#28a745';
+            exportButton.onclick = exportProgress;
+            
+            // Create import button
+            const importButton = document.createElement('button');
+            importButton.innerHTML = '📥 Import';
+            importButton.className = 'save-button';
+            importButton.style.background = '#ffc107';
+            importButton.style.color = '#212529';
+            importButton.onclick = importProgress;
+            
+            // Set responsive positioning
+            function updateButtonPositions() {
+                const screenWidth = window.innerWidth;
+                if (screenWidth <= 480) {
+                    // Very small screens - stack vertically
+                    exportButton.style.right = '30px';
+                    exportButton.style.bottom = '90px';
+                    importButton.style.right = '30px';
+                    importButton.style.bottom = '150px';
+                } else if (screenWidth <= 768) {
+                    // Small screens - closer spacing
+                    exportButton.style.right = '150px';
+                    exportButton.style.bottom = '30px';
+                    importButton.style.right = '280px';
+                    importButton.style.bottom = '30px';
+                } else {
+                    // Normal screens - standard spacing
+                    exportButton.style.right = '200px';
+                    exportButton.style.bottom = '30px';
+                    importButton.style.right = '370px';
+                    importButton.style.bottom = '30px';
+                }
+            }
+            
+            updateButtonPositions();
+            window.addEventListener('resize', updateButtonPositions);
+            
+            document.body.appendChild(exportButton);
+            document.body.appendChild(importButton);
+        }
+
+        // Initialize additional features
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeDashboard();
+            addExportImportButtons();
+            
+            // Add help tooltip
+            const helpTooltip = document.createElement('div');
+            helpTooltip.innerHTML = `
+                <div style="position: fixed; bottom: 20px; left: 20px; background: rgba(0,0,0,0.8); color: white; padding: 10px; border-radius: 8px; font-size: 0.8rem; max-width: 200px; z-index: 1000;">
+                    <strong>Keyboard Shortcuts:</strong><br>
+                    Ctrl+S: Save Progress<br>
+                    Ctrl+E: Export Data<br>
+                    Ctrl+I: Import Data<br>
+                    <button onclick="this.parentElement.style.display='none'" style="float: right; background: none; border: none; color: white; cursor: pointer;">×</button>
+                </div>
+            `;
+            document.body.appendChild(helpTooltip);
+            
+            // Hide help after 10 seconds
+            setTimeout(() => {
+                const tooltip = helpTooltip.querySelector('div');
+                if (tooltip) tooltip.style.display = 'none';
+            }, 10000);
+        });
+    </script>
+</body>
+</html>
